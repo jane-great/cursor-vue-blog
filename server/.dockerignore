@@ -1,0 +1,7 @@
+node_modules
+npm-debug.log
+#需要整理这个配置文件防止密码泄露
+.env
+*.log
+.git
+.gitignore 

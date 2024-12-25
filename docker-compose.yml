@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # 前端服务
+  frontend:
+    container_name: frontend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '80:80'
+    depends_on:
+      - backend
+    networks:
+      - blog-network
+
+  # 后端服务
+  backend:
+    container_name: backend
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - '5000:5000'
+    environment:
+      - MONGO_URI=mongodb://admin:password@mongodb:27017/blog?authSource=admin
+    depends_on:
+      - mongodb
+    networks:
+      - blog-network
+
+  # MongoDB 数据库
+  mongodb:
+    container_name: mongodb
+    image: mongo:latest
+    ports:
+      - '27017:27017'
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - BLOG_USERNAME=blog_user
+      - BLOG_PASSWORD=blog_password
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - blog-network
+
+networks:
+  blog-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
